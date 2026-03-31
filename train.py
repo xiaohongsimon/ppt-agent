@@ -16,7 +16,20 @@ async def main():
     parser.add_argument("--output", default="./training_runs", help="Output directory for runs")
     parser.add_argument("--eval-only", action="store_true", help="Evaluate only, don't optimize prompts")
     parser.add_argument("--history", action="store_true", help="Show training history")
+    parser.add_argument("--step", choices=["prepare", "render", "report"],
+                        help="Run a single step (for Claude Code mode, no API needed)")
     args = parser.parse_args()
+
+    # Stepped mode (for Claude Code — no API key needed)
+    if args.step:
+        from backend.trainer.steps import step_prepare, step_render, step_report
+        if args.step == "prepare":
+            step_prepare(Path(args.corpus))
+        elif args.step == "render":
+            step_render()
+        elif args.step == "report":
+            step_report()
+        return
 
     if args.history:
         history = load_history(Path(args.output) / "history.json")
