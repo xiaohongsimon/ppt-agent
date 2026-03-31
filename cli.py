@@ -13,7 +13,7 @@ from backend.quality_gate.gate import run_quality_gate
 
 async def main():
     parser = argparse.ArgumentParser(description="PPT-Agent: AI Presentation Generator")
-    parser.add_argument("input", help="Text content or path to .pptx file")
+    parser.add_argument("input", help="Text content, path to .pptx, or path to spec .json")
     parser.add_argument("-o", "--output", default="./output", help="Output directory")
     parser.add_argument("--scene", help="Scene hint (e.g., quarterly_review)")
     parser.add_argument("--audience", help="Audience hint (e.g., VP Engineering)")
@@ -26,7 +26,18 @@ async def main():
     output_dir = Path(args.output)
     input_path = Path(args.input)
 
-    if input_path.exists() and input_path.suffix == ".pptx":
+    # Mode 1: Direct RenderSpec JSON (for Claude Code — no API needed)
+    if input_path.exists() and input_path.suffix == ".json":
+        import json
+        from backend.schemas.render_spec import PresentationRenderSpec
+        print(f"Loading spec from: {input_path}")
+        data = json.loads(input_path.read_text(encoding="utf-8"))
+        render_spec = PresentationRenderSpec.model_validate(data)
+        print(f"Loaded: {render_spec.title} ({len(render_spec.slides)} slides)")
+        qg_result = run_quality_gate(render_spec, skip_vlm=args.skip_vlm)
+
+    # Mode 2: PPTX input (needs API)
+    elif input_path.exists() and input_path.suffix == ".pptx":
         print(f"Parsing PPTX: {input_path}")
         pptx_data = parse_pptx(input_path)
         text_summary = f"Title: {pptx_data['title']}\n"
@@ -35,17 +46,17 @@ async def main():
                 f"\nSlide {slide['index'] + 1}: {slide['title']}\n{slide['text_content']}\n"
             )
         intent = await parse_text(text_summary, scene=args.scene, audience=args.audience)
+        render_spec = await generate_render_spec(intent)
+        qg_result = run_quality_gate(render_spec, skip_vlm=args.skip_vlm)
+
+    # Mode 3: Text input (needs API)
     else:
         print("Parsing text input...")
         intent = await parse_text(args.input, scene=args.scene, audience=args.audience)
-
-    print(f"Intent: {intent.title} ({len(intent.slides)} slides)")
-
-    print("Generating presentation design...")
-    render_spec = await generate_render_spec(intent)
-
-    print("Running quality checks...")
-    qg_result = run_quality_gate(render_spec, skip_vlm=args.skip_vlm)
+        print(f"Intent: {intent.title} ({len(intent.slides)} slides)")
+        print("Generating presentation design...")
+        render_spec = await generate_render_spec(intent)
+        qg_result = run_quality_gate(render_spec, skip_vlm=args.skip_vlm)
     final_spec = qg_result.fixed_spec or render_spec
     if qg_result.tier1_passed:
         print(f"Quality Gate: PASSED (auto-fixed {qg_result.auto_fix_rounds} rounds)")
