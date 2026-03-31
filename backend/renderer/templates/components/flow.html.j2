@@ -1,0 +1,7 @@
+{# backend/renderer/templates/components/flow.html.j2 #}
+<div class="flow">
+  {% for step in component.props.get("steps", []) %}
+  {% if not loop.first %}<span class="flow-arrow">&rarr;</span>{% endif %}
+  <div class="flow-step">{{ step }}</div>
+  {% endfor %}
+</div>

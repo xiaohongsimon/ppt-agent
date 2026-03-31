@@ -1,0 +1,31 @@
+{# backend/renderer/templates/index.html.j2 #}
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ title }}</title>
+  <style>
+    :root {
+      {% for key, value in theme.items() %}
+      --{{ key | replace("_", "-") }}: {{ value }};
+      {% endfor %}
+    }
+  </style>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  {% for slide in slides %}
+  {% include "base_slide.html.j2" %}
+  {% endfor %}
+
+  <nav class="nav-bar">
+    <button data-dir="-1">&larr;</button>
+    <span class="slide-counter">1 / {{ slides | length }}</span>
+    <div class="progress-bar"><div class="progress-fill" style="width: {{ 100 / slides | length }}%"></div></div>
+    <button data-dir="1">&rarr;</button>
+  </nav>
+
+  <script src="slides.js"></script>
+</body>
+</html>

@@ -1,0 +1,5 @@
+{# backend/renderer/templates/components/highlight_box.html.j2 #}
+{% set color = component.props.get("color", "green") %}
+<div class="highlight-box {{ color }}">
+  {{ component.props.get("text", "") }}
+</div>

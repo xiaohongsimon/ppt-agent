@@ -1,0 +1,6 @@
+{# backend/renderer/templates/components/bullet_list.html.j2 #}
+<ul class="bullet-list">
+  {% for item in component.props.get("items", []) %}
+  <li>{{ item }}</li>
+  {% endfor %}
+</ul>

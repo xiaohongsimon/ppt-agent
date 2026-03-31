@@ -1,0 +1,12 @@
+{# backend/renderer/templates/components/card_grid.html.j2 #}
+{% set cols = component.props.get("columns", 3) %}
+<div class="card-grid cols-{{ cols }}">
+  {% for card in component.props.get("cards", []) %}
+  <div class="card">
+    {% if card.get("title") %}<h3>{{ card.title }}</h3>{% endif %}
+    {% if card.get("value") %}<div style="font-size: 2em; font-weight: 900; color: var(--accent-primary);">{{ card.value }}</div>{% endif %}
+    {% if card.get("change") %}<div style="color: var(--accent-green); font-weight: 600;">{{ card.change }}</div>{% endif %}
+    {% if card.get("description") %}<p style="color: var(--text-muted); font-size: 0.85em;">{{ card.description }}</p>{% endif %}
+  </div>
+  {% endfor %}
+</div>

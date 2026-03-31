@@ -1,0 +1,26 @@
+{# backend/renderer/templates/base_slide.html.j2 #}
+<section class="slide" id="slide-{{ slide.slide_index }}">
+  {% if slide.subheading %}
+  <span class="tag">{{ slide.subheading }}</span>
+  {% endif %}
+
+  <h1{% if slide.slide_index == 0 %} class="gradient-text"{% endif %}>{{ slide.heading }}</h1>
+
+  {% for component in slide.components %}
+    {% if component.type == "card_grid" %}
+      {% include "components/card_grid.html.j2" %}
+    {% elif component.type == "highlight_box" %}
+      {% include "components/highlight_box.html.j2" %}
+    {% elif component.type == "bar_chart" %}
+      {% include "components/bar_chart.html.j2" %}
+    {% elif component.type == "bullet_list" %}
+      {% include "components/bullet_list.html.j2" %}
+    {% elif component.type == "flow" %}
+      {% include "components/flow.html.j2" %}
+    {% elif component.type == "text_block" %}
+      <div class="text-block">{{ component.props.get("text", "") }}</div>
+    {% elif component.type == "quote_box" %}
+      <div class="quote-box">{{ component.props.get("text", "") }}</div>
+    {% endif %}
+  {% endfor %}
+</section>

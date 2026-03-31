@@ -1,0 +1,13 @@
+{# backend/renderer/templates/components/bar_chart.html.j2 #}
+<div class="bar-chart">
+  {% for bar in component.props.get("bars", []) %}
+  <div class="bar-row">
+    <span class="bar-label">{{ bar.get("label", "") }}</span>
+    <div class="bar-track">
+      <div class="bar-fill" style="width: {{ bar.get('value', 0) }}%">
+        {{ bar.get("display", "") }}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
